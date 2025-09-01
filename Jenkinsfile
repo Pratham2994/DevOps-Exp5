@@ -1,27 +1,29 @@
 pipeline {
   agent any
-  options { timestamps() }
-  environment { PY = 'python3' }
   stages {
-    stage('Checkout') { steps { checkout scm } }
-    stage('Setup') {
+    stage('Build') {
       steps {
-        sh """
-          ${PY} -m pip install --upgrade pip
-          ${PY} -m pip install --user pytest
-        """
+        echo 'Building project...'
       }
     }
     stage('Test') {
       steps {
-        sh "${PY} -m pytest -q --junitxml=pytest-results.xml"
+        sh '''
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pytest
+          pytest -q --junitxml=pytest-results.xml
+        '''
+      }
+    }
+    stage('Deploy') {
+      steps {
+        echo 'Deploying project (simulated)...'
       }
     }
   }
   post {
     always {
       junit 'pytest-results.xml'
-      archiveArtifacts artifacts: 'pytest-results.xml', fingerprint: true, allowEmptyArchive: true
     }
   }
 }
